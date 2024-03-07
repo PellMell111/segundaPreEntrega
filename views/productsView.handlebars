@@ -1,0 +1,34 @@
+{{#if data.payload}}
+    <ul>
+        {{#each data.payload}}
+            <li>
+                <h2>{{this.title}}</h2>
+                <p>{{this.description}}</p>
+                <p>Categoría: {{this.category}}</p>
+                <p>Precio: {{this.price}}</p>
+                <p>Cantidad: {{this.stock}}</p>
+                <p>Código: {{this.code}}</p>
+                 
+                <p>Thumbnails:</p>
+                <ul>
+                    {{#each this.thumbnails}}
+                        <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </li>
+        {{/each}}
+    </ul>
+
+{{#if data.hasPrevPage}}
+    <a href="{{data.prevLink}}">Página anterior</a>
+{{/if}}
+
+{{#if data.hasNextPage}}
+    <a href="{{data.nextLink}}">Página siguiente</a>
+{{/if}}
+
+<p>Página {{data.page}} de {{data.totalPages}}</p>
+
+{{else}}
+    <p>No se encontraron productos.</p>
+{{/if}}

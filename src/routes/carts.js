@@ -2,6 +2,7 @@ import { Router } from 'express';
 import cartModel from '../models/carts.model.js';
 import productModel from '../models/products.model.js';
 
+
 const router = Router();
 
 router.post('/new-cart', async (req, res) => {
@@ -68,7 +69,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
       }
   
       const updatedCart = await cartModel.findOneAndUpdate(
-        { _id: cid, 'products._id': pid },
+        { _id: cid, 'products.product': pid },
         { $set: { 'products.$.quantity': quantity } },
         { new: true }
       ).populate('products');
@@ -78,9 +79,53 @@ router.put('/:cid/products/:pid', async (req, res) => {
       }
   
       res.status(200).json({ message: 'Cantidad de producto actualizada correctamente', data: updatedCart.products });
+
     } catch (error) {
       console.error('Error al actualizar cantidad ', error);
       res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+router.get('/', async (req, res) => {
+    try {
+        const allCarts = await cartModel.find().populate('products');
+    
+        res.status(200).json({ message: 'Lista de carritos obtenida correctamente', data: allCarts });
+    } catch (error) {
+        console.error('Error al obtener la lista de carritos', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+router.get('/:cid', async (req, res) => {
+    try {
+        const { cid } = req.params;
+
+        console.log('Intentando obtener el carrito con ID:', cid);
+  
+        const cart = await cartModel.findById(cid).populate('products');
+      
+        if (!cart) {
+            console.log('Carrito no encontrado');
+            return res.status(404).json({ error: 'Carrito no encontrado' });
+        }
+
+        console.log('Carrito encontrado:', cart);
+
+        const cartData = {
+            _id: cart._id,
+            products: cart.products.map(product => ({
+                _id: product._id,
+                title: product.title,
+                quantity: product.quantity,
+            })),
+        };
+  
+        res.render('cartsView', { cart: cartData });
+  
+    } catch (error) {
+        console.error('Error al renderizar carrito', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
   

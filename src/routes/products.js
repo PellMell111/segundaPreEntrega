@@ -51,8 +51,20 @@ router.get('/', async (req, res) => {
     const queryOptions = query ? { category: query } : {};
     const result = await productModel.paginate(queryOptions, options);
 
-    // Recuerda completar el formato de respuesta cuando estes creando las vistas!
-    res.status(200).json({ message: 'Productos obtenidos correctamente', data: result });
+    const response = {
+      status: 'success',
+      payload: result.docs,
+      totalPages: result.totalPages,
+      prevPage: result.prevPage,
+      nextPage: result.nextPage,
+      page: result.page,
+      hasPrevPage: result.hasPrevPage,
+      hasNextPage: result.hasNextPage,
+      prevLink: result.hasPrevPage ? `/products?page=${result.prevPage}&limit=${result.limit}` : null,
+      nextLink: result.hasNextPage ? `/products?page=${result.nextPage}&limit=${result.limit}` : null,
+    };
+
+    res.render('productsView', { data: response });
 
   } catch (error) {
     console.error('Error al obtener productos', error);
